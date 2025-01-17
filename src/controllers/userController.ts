@@ -75,8 +75,8 @@ import { Request, Response } from 'express';
       return;
     }
   }
-
-  export const addFriend = async (req: Request, res: Response) => {
+  //res: Response
+  export const addFriend = async (req: Request) => {
     try {
         const user = await User.findById({_id: req.params.userId });
         if (!user) {
@@ -92,7 +92,8 @@ import { Request, Response } from 'express';
       }
   }
 
-  export const removeFriend = async (req: Request, res: Response) => {
+  // res: Response
+  export const removeFriend = async (req: Request) => {
     try {
         const user = await User.findById({_id: req.params.userId });
         if (!user) {
