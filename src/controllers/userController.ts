@@ -1,4 +1,4 @@
-import { User, Application } from '../models/index.js';
+import { User} from '../models/index.js';
 import { Request, Response } from 'express';
 
 
@@ -16,7 +16,9 @@ import { Request, Response } from 'express';
   export const getSingleUser = async (req: Request, res: Response) => {
     try {
       const user = await User.findOne({ _id: req.params.userId })
-        .select('-__v');
+        .select('-__v')      
+        .populate("thought")
+        .populate('friend');
 
       if (!user) {
         return res.status(404).json({ message: 'No user with that ID' });
@@ -49,12 +51,60 @@ import { Request, Response } from 'express';
         return res.status(404).json({ message: 'No user with that ID' });
       }
 
-      await Application.deleteMany({ _id: { $in: user.applications } });
-      res.json({ message: 'User and associated apps deleted!' })
+      res.json({ message: 'User Deleted' })
       return;
     } catch (err) {
       res.status(500).json(err);
       return;
     }
+  }
+
+  export const updateUser = async (req: Request, res: Response) => {
+    try {
+      const user = await User.findOneAndUpdate(
+      { _id: req.params.userId },
+      { $set: req.body },)
+      
+      if (!user) {
+        return res.status(404).json({ message: 'No user with that ID' });
+      }
+      res.json(user);
+      return;
+    } catch (err) {
+      res.status(500).json(err);
+      return;
+    }
+  }
+
+  export const addFriend = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById({_id: req.params.userId });
+        if (!user) {
+          return null; // user not found
+        }
+    
+        user.friends.push(req.body);
+        await user.save();
+        return user;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
+  }
+
+  export const removeFriend = async (req: Request, res: Response) => {
+    try {
+        const user = await User.findById({_id: req.params.userId });
+        if (!user) {
+          return null; // user not found
+        }
+    
+        user.friends.filter(friend => friend !== req.body);
+        await user.save();
+        return user;
+      } catch (error) {
+        console.error(error);
+        throw error;
+      }
   }
 
