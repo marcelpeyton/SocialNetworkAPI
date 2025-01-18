@@ -57,7 +57,7 @@ import { Request, Response } from 'express';
   export const updateThought = async (req: Request, res: Response) => {
     try {
       const thought = await Thoughts.findOneAndUpdate(
-        { _id: req.params.thoughtId },
+        { _id: req.params.thoughtsId },
         { $set: req.body },
         { runValidators: true, new: true }
       );
@@ -77,15 +77,16 @@ import { Request, Response } from 'express';
 
   export const deleteThought = async (req: Request, res: Response) => {
     try {
-      const thought = await Thoughts.findOneAndDelete({ _id: req.params.thoguhtId });
+
+      const thought = await Thoughts.findOneAndDelete({ _id: req.params.thoughtsId });
 
       if (!thought) {
         return res.status(404).json({ message: 'No thought with this id!' });
       }
 
       const user = await User.findOneAndUpdate(
-        { thoughts: req.params.thoughtId },
-        { $pull: { thoughts: req.params.thoughtId } },
+        { thoughts: req.params.thoughtsId },
+        { $pull: { thoughts: req.params.thoughtsId } },
         { new: true }
       );
 
@@ -107,11 +108,10 @@ import { Request, Response } from 'express';
   export const addReaction = async (req: Request, res: Response) => {
     try {
       const thought = await Thoughts.findOneAndUpdate(
-        { _id: req.params.thoughtId },
+        { _id: req.params.thoughtsId },
         { $addToSet: { reactions: req.body } },
         { runValidators: true, new: true }
       );
-
       if (!thought) {
         return res.status(404).json({ message: 'No thought with this id!' });
       }
@@ -128,7 +128,7 @@ import { Request, Response } from 'express';
   export const removeReaction = async (req: Request, res: Response) => {
     try {
       const thought = await Thoughts.findOneAndUpdate(
-        { _id: req.params.thoughtId },
+        { _id: req.params.thoughtsId },
         { $pull: { reactions: { reactionId: req.params.reactionId } } },
         { runValidators: true, new: true }
       );
@@ -137,7 +137,7 @@ import { Request, Response } from 'express';
         return res.status(404).json({ message: 'No thought with this id!' });
       }
 
-      res.json(thought);
+      res.json({ message: 'Reaction was deleted!' });
       return;
     } catch (err) {
       res.status(500).json(err);
